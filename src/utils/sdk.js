@@ -1,7 +1,7 @@
 import { history } from 'config/routes';
 import { LOGIN_URL } from 'config/urls';
 
-import { notifyError } from 'utils/notifications';
+import { notifyError, notifySuccess } from 'utils/notifications';
 
 export const BASE_API_URL = `${process.env.REACT_APP_BASE_BACKEND_URL}/api/v1`;
 
@@ -11,10 +11,20 @@ const getBaseConfig = method => ({
   headers: { 'Content-Type': 'application/json' }
 });
 
-const handle401 = resp => {
+const handleResponse = resp => {
   if (resp.status === 401) {
     history.push(LOGIN_URL);
-    notifyError('Unauthenticated.');
+    notifyError('Unauthenticated. Please sign in to continue');
+  }
+
+  if (resp.status === 202) {
+    notifyError('Log out successfull!');
+    localStorage.setItem('isAuthenticated', 'false');
+    window.location.reload(LOGIN_URL);
+  }
+
+  if (resp.status === 200) {
+    localStorage.setItem('isAuthenticated', 'true');
   }
 
   return resp;
@@ -32,7 +42,7 @@ const serializeResponse = response => {
 export const get = (url, options) =>
   fetch(`${BASE_API_URL}/${url}`, { ...getBaseConfig('get'), ...options })
     .then(serializeResponse)
-    .then(handle401);
+    .then(handleResponse);
 
 export const post = (url, data, options) =>
   fetch(`${BASE_API_URL}/${url}`, {
@@ -41,4 +51,4 @@ export const post = (url, data, options) =>
     body: JSON.stringify(data)
   })
     .then(serializeResponse)
-    .then(handle401);
+    .then(handleResponse);

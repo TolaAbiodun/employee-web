@@ -5,7 +5,7 @@ import GoogleButton from 'react-google-button';
 
 import { HOME_URL } from 'config/urls';
 import { notifyError } from 'utils/notifications';
-import { UserContext} from 'components';
+import { UserContext } from 'components';
 
 import { validateTokenAndObtainSession } from './sdk';
 import styles from './Login.module.css';
@@ -15,6 +15,8 @@ const { REACT_APP_GOOGLE_CLIENT_ID, REACT_APP_BASE_BACKEND_URL } = process.env;
 const Login = () => {
   const history = useHistory();
   const { setUser } = useContext(UserContext);
+
+  const isAuthenticated = localStorage.getItem('isAuthenticated');
 
   useEffect(() => {
     const queryParams = new URLSearchParams(history.location.search);
@@ -31,7 +33,6 @@ const Login = () => {
     resp => {
       if (resp.ok) {
         setUser(resp.data);
-        history.push(HOME_URL);
       } else {
         notifyError(resp.data[0]);
       }
@@ -78,11 +79,19 @@ const Login = () => {
     window.location = `${googleAuthUrl}?${urlParams}`;
   }, []);
 
+  if (isAuthenticated === 'true') {
+    history.push(HOME_URL);
+  }
+
   return (
     <>
       <div
         className="container d-flex flex-column"
-        style={{ justifyContent: 'center', alignItems: 'center', margin:"0 auto"}}>
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          margin: '0 auto'
+        }}>
         <h1 className={styles.pageHeader}>Welcome to Employee Manager!</h1>
 
         <h2 className={styles.btnHeader}>Click the button below to continue</h2>

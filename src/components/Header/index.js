@@ -14,7 +14,7 @@ const Navigation = () => {
     const handleLogout = useCallback(() => {
     logout().then(() => {
         setUser(null);
-        history.push(LOGIN_URL);
+        window.location.replace(LOGIN_URL);
     });
     }, [setUser, history]);
 
